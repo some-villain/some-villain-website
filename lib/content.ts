@@ -138,7 +138,12 @@ export interface Zine {
   year: string;
   cover: string;
   description: string;
+  /** Interior page images shown in the slideshow after the cover. */
+  pages: string[];
 }
+
+const zinePages = (id: string) =>
+  [1, 2, 3].map((n) => `/stills/${id}-page-${n}.svg`);
 
 export const zines: Zine[] = [
   {
@@ -147,6 +152,7 @@ export const zines: Zine[] = [
     cover: '/stills/zine-01.svg',
     description:
       'Production diaries, storyboards, and stills from a year of short films.',
+    pages: zinePages('zine-01'),
   },
   {
     title: 'Puget Sound Notes',
@@ -154,6 +160,7 @@ export const zines: Zine[] = [
     cover: '/stills/zine-02.svg',
     description:
       'A photo essay on the light, water, and weather of the Pacific Northwest.',
+    pages: zinePages('zine-02'),
   },
   {
     title: 'Call Sheet',
@@ -161,6 +168,7 @@ export const zines: Zine[] = [
     cover: '/stills/zine-03.svg',
     description:
       'Interviews and portraits of the collaborators behind the camera.',
+    pages: zinePages('zine-03'),
   },
   {
     title: 'Seagull, Age Six',
@@ -168,5 +176,6 @@ export const zines: Zine[] = [
     cover: '/stills/zine-04.svg',
     description:
       'Essays on theater, performance, and how storytelling begins.',
+    pages: zinePages('zine-04'),
   },
 ];

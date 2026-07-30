@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
-import { Badge, SectionHeading, buttonVariants } from '@/components/ui';
-import { site, zines } from '@/lib/content';
+import { SectionHeading, buttonVariants } from '@/components/ui';
+import { ZineGrid } from '@/components/sections';
+import { site } from '@/lib/content';
 
 export const metadata: Metadata = {
   title: 'Zines',
@@ -17,33 +17,11 @@ export default function ZinesPage() {
         <p className="max-w-2xl text-base leading-relaxed text-muted">
           Not everything belongs on a screen. These self-published zines collect
           production diaries, photo essays, and writing from behind the camera.
+          Click a cover to flip through.
         </p>
       </div>
 
-      <ul className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
-        {zines.map((zine) => (
-          <li key={zine.title} className="group space-y-4">
-            <div className="relative aspect-[3/4] overflow-hidden bg-surface">
-              <Image
-                src={zine.cover}
-                alt={`Cover of ${zine.title}`}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="font-display text-base font-semibold uppercase tracking-wide text-cream">
-                  {zine.title}
-                </h2>
-                <Badge>{zine.year}</Badge>
-              </div>
-              <p className="text-sm leading-relaxed text-muted">{zine.description}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <ZineGrid />
 
       <div className="mt-20 border-t border-line pt-12 text-center">
         <p className="mx-auto max-w-xl text-base leading-relaxed text-muted">
