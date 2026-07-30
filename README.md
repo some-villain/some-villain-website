@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Andrew Davies — Film Portfolio
 
-## Getting Started
+A cinematic portfolio site for Seattle filmmaker Andrew Davies, built with
+Next.js (App Router), TypeScript, and Tailwind CSS v4.
 
-First, run the development server:
+## Pages
+
+- **Home** (`/`) — photo collage with an autoplaying film loop, intro, and a "Now Playing" feature
+- **About** (`/about`) — portrait, bio, and services
+- **Works** (`/works`) — filterable gallery of films with click-to-play YouTube embeds
+- **Zines** (`/zines`) — print publications
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Swapping in real content
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All editable content lives in [`lib/content.ts`](lib/content.ts):
 
-## Learn More
+- **Videos** — every `youtubeId` currently points to a Blender Foundation open
+  movie as a placeholder. Replace each with the ID from a real YouTube URL
+  (the part after `watch?v=`).
+- **Photos** — the images in `public/stills/` are generated SVG placeholders.
+  Drop in real photos (JPG/PNG) and update the paths in `lib/content.ts`.
+- **Contact & socials** — update `site.email` and `site.socials`.
 
-To learn more about Next.js, take a look at the following resources:
+## Architecture
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Components follow Atomic Design:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `components/ui/` — atoms (Button, Badge, SectionHeading)
+- `components/common/` — molecules (YouTubePlayer, AutoplayVideo)
+- `components/layout/` — Navbar, Footer
+- `components/sections/` — page sections (HeroCollage, NowPlaying, WorksGrid)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The `YouTubePlayer` is a "lite embed": it renders only the video thumbnail
+until clicked, keeping the gallery fast. The hero `AutoplayVideo` is muted and
+looped, since browsers only allow autoplay for muted video.
