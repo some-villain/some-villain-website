@@ -37,9 +37,12 @@
   }
 }
 
-html,
-body {
+html {
+  /* Background lives on html only, so the page canvas stays behind the fixed -z-10 hero video */
   background-color: var(--color-ink);
+}
+
+body {
   color: var(--color-cream);
   font-family: var(--font-body), system-ui, sans-serif;
 }
