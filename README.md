@@ -1,12 +1,12 @@
-# Andrew Davies — Film Portfolio
+# Some Villain
 
-A cinematic portfolio site for Seattle filmmaker Andrew Davies, built with
+Site for Some Villain, a Seattle-based film and zine makers, built with
 Next.js (App Router), TypeScript, and Tailwind CSS v4.
 
 ## Pages
 
 - **Home** (`/`) — photo collage with an autoplaying film loop, intro, and a "Now Playing" feature
-- **About** (`/about`) — portrait, bio, and services
+- **About** (`/about`) — portrait and bio
 - **Films** (`/films`) — gallery of short films with click-to-play YouTube embeds
 - **Zines** (`/zines`) — print publications
 - **Upcoming** (`/upcoming`) — poster from the bucket's `Poster/` folder
@@ -24,33 +24,67 @@ Create `.env.local` first (see [Environment variables](#environment-variables)),
 
 Everything lives in Supabase: text and links in tables, images in Storage.
 
-1. Add your project keys to `.env.local`:
-   `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
-2. Run [`supabase/schema.sql`](supabase/schema.sql) once in the Supabase SQL
-   editor. It creates the tables with public-read RLS, seeds the text content,
-   and installs a trigger that registers every file in the `images` bucket.
-3. Upload images to the public `images` bucket: `Bio/` (About portrait),
-   `Collage/` (home collage), `Poster/` (Upcoming page), and `Zines/Zine<N>/` (files numbered by page,
-   1 = cover; use png/jpg/webp, not .ai or .pdf). Each file gets
-   a row in the `images` table automatically (edit its `alt` text there).
-   Pages, the portrait and the collage are read from these folders; no
-   further wiring is needed.
+1. Add your project keys to `.env.local`
+   (see [Environment variables](#environment-variables)).
+2. Only if the project has no tables yet: run
+   [`supabase/schema.sql`](supabase/schema.sql) once in the Supabase SQL editor.
+   It creates the tables with public-read RLS, a policy that lets the site list
+   the bucket, and seed content. A project that already has the tables needs no
+   SQL; the keys from step 1 are the whole connection.
+3. Create a public Storage bucket named `images` and upload to these folders
+   (png, jpg, jpeg or webp, any letter case; not .ai or .pdf):
+   - `Bio/`: the first file is the About portrait
+   - `Collage/`: every image rotates through the home collage
+   - `Poster/`: the first file is the Upcoming page poster
+   - `Zines/Zine<N>/`: files named `<page> <name>.<ext>`; page 1 is the cover
+     and the zine is titled "Vol. N"
+
+   The site lists these folders directly, so uploads appear after the cache
+   refreshes (up to 5 minutes).
 
 | Table | Holds |
 | --- | --- |
-| `site_settings`, `home_settings`, `about_settings`, `services` | text |
+| `site_settings`, `home_settings`, `about_settings` | text |
 | `social_links` | social media links |
-| `works` | videos in the Works gallery (`provider` + `video_id`, e.g. YouTube) |
+| `works` | videos in the Films gallery (`provider` + `video_id`, e.g. YouTube) |
 | `now_playing` | the single video featured on the home page (separate from `works`) |
-| `images` | registry of files in the `images` bucket (`path`, `alt`) |
-| `zines` | zine titles and descriptions (pages come from `Zines/Zine<N>/`) |
 
-Image URLs are built from the path:
+Image URLs are
 `<SUPABASE_URL>/storage/v1/object/public/images/<path>`.
 
-Data flows through the fetchers in [`lib/data.ts`](lib/data.ts). If a table is
-empty or Supabase is unreachable, pages fall back to the static placeholder
-content in [`lib/content.ts`](lib/content.ts) (a single placeholder image, `public/fallback.svg`).
+### Caching and fallbacks
+
+Data flows through the fetchers in [`lib/data.ts`](lib/data.ts), which use a
+public client with no cookies or session. Responses are cached by Next.js and
+revalidated every 5 minutes (`REVALIDATE_SECONDS`), so pages are static and
+served from the host's edge rather than querying Supabase on every visit.
+
+If a table is empty, Supabase is unreachable or a query exceeds 2.5 seconds,
+the fetcher logs `[supabase] <name> failed, using fallback content` to the
+server log (development only: production builds strip all `console.*` calls
+via `compiler.removeConsole` in `next.config.ts`) and the page uses the static fallbacks in
+[`lib/content.ts`](lib/content.ts) (a single placeholder image,
+`public/fallback.svg`). To see these failures in production, change `removeConsole` to
+`{ exclude: ["error"] }`.
+
+### Image resizing
+
+All Supabase images go through `next/image` with the loader in
+[`lib/supabaseImageLoader.ts`](lib/supabaseImageLoader.ts). By default Next.js
+resizes them. If your Supabase plan includes Image Transformations (a paid
+feature), set `NEXT_PUBLIC_SUPABASE_IMAGE_TRANSFORMS=true` and Supabase will
+resize and compress them instead, so large originals are never downloaded in
+full by the server.
+
+## Tests
+
+```bash
+pnpm test
+```
+
+Unit tests cover the image helpers, the image loader, and the fetchers
+(folder listing, zine ordering, fallbacks and error logging) using a mocked
+Supabase client.
 
 ## Environment variables
 
@@ -78,15 +112,26 @@ Notes:
   requires a new deploy. `next.config.ts` also reads the URL at build time to
   allow images from the Supabase Storage host.
 - If either variable is missing, pages render the static fallback content in
-  `lib/content.ts` (a single placeholder image) instead of failing.
+  `lib/content.ts` (a single placeholder image) instead of failing, and the
+  server log shows `[supabase] ... failed`.
+
+Optional: `NEXT_PUBLIC_SUPABASE_IMAGE_TRANSFORMS=true` switches image resizing
+to Supabase Image Transformations (see [Image resizing](#image-resizing)).
 
 ## Deployment
 
-Prerequisites: the repository is on GitHub, `supabase/schema.sql` has been run
-in your Supabase project, and the `images` bucket is public and populated.
+Prerequisites: the repository is on GitHub, the Supabase tables exist (see
+[`supabase/schema.sql`](supabase/schema.sql) for a new project), and the `images`
+bucket is public and populated.
 The project uses pnpm (`pnpm-lock.yaml`) and Next.js 16, which needs Node 20.9
 or newer. Both hosts detect the framework, package manager and build command
 (`pnpm build`) automatically.
+
+Pages are built from Supabase data and then refreshed in the background every
+5 minutes. After editing a table or uploading an image, allow up to 5 minutes
+for the live site to update (or redeploy to refresh immediately). If Supabase is
+unreachable during a build, the build still succeeds with the fallback content
+until the next refresh.
 
 ### Vercel
 
@@ -155,6 +200,21 @@ Components follow Atomic Design:
 - `components/layout/` — Navbar, Footer
 - `components/sections/` — page sections (HeroCollage, NowPlaying, WorksGrid)
 
+Data and images:
+
+- `lib/data.ts` — the only code that talks to Supabase (cached fetchers with fallbacks)
+- `lib/images.ts` — bucket helpers: public URLs, accepted formats, page ordering
+- `lib/supabaseImageLoader.ts` — `next/image` loader (resizing)
+- `lib/content.ts` — shared content types and static fallbacks
+
 The `YouTubePlayer` is a "lite embed": it renders only the video thumbnail
 until clicked, keeping the gallery fast. The hero `AutoplayVideo` is muted and
 looped, since browsers only allow autoplay for muted video.
+
+## Before launch
+
+- Replace the placeholder background loop: `home_settings.hero_video_id` is still
+  the placeholder video ID.
+- Confirm Films and Now Playing should not share a video (`eVkBWjiSydU` is both).
+- Run `pnpm test` and `pnpm build`, and check that the build output lists the
+  routes as static.

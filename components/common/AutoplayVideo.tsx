@@ -40,12 +40,6 @@ const AutoplayVideo = ({ youtubeId, title, className, ...props }: AutoplayVideoP
 
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== PLAYER_ORIGIN) return;
-      // TEMP DEBUG
-      console.debug('[AutoplayVideo] msg', {
-        sourceMatch: event.source === iframeRef.current?.contentWindow,
-        hasRef: !!iframeRef.current,
-        sample: String(event.data).slice(0, 80),
-      });
       if (event.source !== iframeRef.current?.contentWindow) return;
       let data;
       try {

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: `%s — ${site.name}`,
   },
   description:
-    'Andrew Davies is a Seattle-based filmmaker creating short films, social media campaigns, event and wedding videos, and commercial work.',
+    `${site.name}: ${site.tagline}.`,
 };
 
 export default async function RootLayout({

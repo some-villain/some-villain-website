@@ -44,12 +44,10 @@ interface Layer {
  */
 const CollageTile = ({
   image,
-  priority,
   onOpen,
   className,
 }: {
   image: CollageImage;
-  priority: boolean;
   onOpen: () => void;
   className: string;
 }) => {
@@ -90,7 +88,7 @@ const CollageTile = ({
           alt={layer.image.alt}
           fill
           sizes="(max-width: 768px) 60vw, 40vw"
-          priority={priority}
+          priority // the whole collage is above the fold, so any tile can be the LCP image
           onLoad={() => markLoaded(layer.image.src)}
           style={{ transitionDuration: `${FADE_MS}ms` }}
           className={cn(
@@ -162,7 +160,6 @@ const HeroCollage = ({ collage }: HeroCollageProps) => {
           <CollageTile
             key={tile}
             image={collage[poolIndex]}
-            priority={tile === 0 || tile === 2 || tile === 5}
             className={TILE_LAYOUT[tile]}
             onOpen={() => setExpanded(tile)}
           />
