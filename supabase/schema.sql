@@ -7,14 +7,12 @@
 --                        Collage/         every image rotates through the home collage
 --                        Poster/          first file is the Upcoming page poster
 --                        Zines/Zine<N>/   "<page> <name>.<ext>"; page 1 is the cover (title "Vol. N")
---                      Only png, jpg, jpeg and webp are used. There is no image table:
---                      the site lists the folders through the Storage API.
+--                      Only png, jpg, jpeg and webp are used. The site lists the folders
+--                      through the Storage API.
 --
 -- All tables are publicly readable (anon SELECT) with no public writes, and the
 -- bucket's files can be listed by anon. Run once in the SQL editor, then manage
--- rows in the table editor. To upgrade a project created from an earlier version
--- of this file, run supabase/migrate-to-storage-listing.sql instead (and, once the
--- new site is live, optionally supabase/cleanup-legacy-tables.sql).
+-- rows in the table editor.
 
 -- ---------------------------------------------------------------------------
 -- Text + links

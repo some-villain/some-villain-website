@@ -28,12 +28,7 @@ Everything lives in Supabase: text and links in tables, images in Storage.
    (see [Environment variables](#environment-variables)).
 2. Run [`supabase/schema.sql`](supabase/schema.sql) once in the Supabase SQL
    editor. It creates the tables with public-read RLS, a policy that lets the
-   site list the bucket, and seed content. A project created from an earlier
-   version of the schema should run
-   [`supabase/migrate-to-storage-listing.sql`](supabase/migrate-to-storage-listing.sql)
-   instead. Once the new version of the site is live, optionally run
-   [`supabase/cleanup-legacy-tables.sql`](supabase/cleanup-legacy-tables.sql)
-   to drop the tables it no longer uses.
+   site list the bucket, and seed content.
 3. Create a public Storage bucket named `images` and upload to these folders
    (png, jpg, jpeg or webp, any letter case; not .ai or .pdf):
    - `Bio/`: the first file is the About portrait
@@ -42,8 +37,8 @@ Everything lives in Supabase: text and links in tables, images in Storage.
    - `Zines/Zine<N>/`: files named `<page> <name>.<ext>`; page 1 is the cover
      and the zine is titled "Vol. N"
 
-   There is no image table or wiring step. The site lists these folders
-   directly, so uploads appear after the cache refreshes (up to 5 minutes).
+   The site lists these folders directly, so uploads appear after the cache
+   refreshes (up to 5 minutes).
 
 | Table | Holds |
 | --- | --- |
@@ -124,9 +119,7 @@ to Supabase Image Transformations (see [Image resizing](#image-resizing)).
 ## Deployment
 
 Prerequisites: the repository is on GitHub, `supabase/schema.sql` has been run
-in your Supabase project (an existing project needs only
-`supabase/migrate-to-storage-listing.sql`, which adds the policy that lets the
-site list the bucket), and the `images` bucket is public and populated.
+in your Supabase project, and the `images` bucket is public and populated.
 The project uses pnpm (`pnpm-lock.yaml`) and Next.js 16, which needs Node 20.9
 or newer. Both hosts detect the framework, package manager and build command
 (`pnpm build`) automatically.
