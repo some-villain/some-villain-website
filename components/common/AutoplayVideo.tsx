@@ -12,12 +12,13 @@ const PLAYER_ORIGIN = 'https://www.youtube-nocookie.com';
 
 // YouTube widget player states
 const PLAYING = 1;
+const ENDED = 0;
 const BUFFERING = 3;
 
 /**
  * Decorative, muted, looping YouTube embed (browsers only allow autoplay when
- * muted). Looping is done by the retry below, not YouTube's playlist loop,
- * which adds previous/next/pause overlays on mobile. The iframe is oversized and centered so YouTube's top/bottom chrome
+ * muted). Looping is done by replaying on the ended event, not YouTube's
+ * playlist loop, which adds previous/next/pause overlays on mobile. The iframe is oversized and centered so YouTube's top/bottom chrome
  * is cropped out, pointer events are disabled, and the video is only visible
  * while the player reports it is actually playing — so no player controls,
  * spinners, or paused states are ever shown. If the player stops for any
@@ -53,6 +54,10 @@ const AutoplayVideo = ({ youtubeId, title, className, ...props }: AutoplayVideoP
       if (typeof state !== 'number') return;
       if (state === PLAYING) {
         setPlayingState(true);
+      } else if (state === ENDED) {
+        // Loop: rewind and replay right away, keeping the video visible
+        post({ event: 'command', func: 'seekTo', args: [0, true] });
+        post({ event: 'command', func: 'playVideo', args: [] });
       } else if (state !== BUFFERING) {
         // Unstarted, paused, ended, or cued: hide the player until it plays.
         setPlayingState(false);
