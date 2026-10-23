@@ -6,7 +6,7 @@ import { getZines } from '@/lib/data';
 export const metadata: Metadata = {
   title: 'Zines',
   description:
-    'Self-published zines by Andrew Davies — production diaries, photo essays, and writing on filmmaking and storytelling.',
+    'Zines by Some Villain.',
 };
 
 export default async function ZinesPage() {

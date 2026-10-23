@@ -3,9 +3,8 @@
  *
  * Live content comes from Supabase via the fetchers in lib/data.ts (schema in
  * supabase/schema.sql). The values here are used as fallbacks whenever a
- * table is empty or unreachable, so the site always renders. Video
- * placeholders point to Blender Foundation open movies; images are generated
- * a single placeholder image (/fallback.svg).
+ * table is empty or unreachable, so the site always renders. Fallback images
+ * all use a single placeholder (/fallback.svg).
  */
 
 export interface SiteContent {
@@ -20,13 +19,7 @@ export interface HomeContent {
   heroVideoId: string;
   intro: string;
   collage: Array<{ src: string; alt: string }>;
-  nowPlaying: {
-    youtubeId: string;
-    title: string;
-    year: string;
-    category: string;
-    description: string;
-  };
+  nowPlaying: { youtubeId: string; title: string };
 }
 
 export interface AboutContent {
@@ -34,7 +27,6 @@ export interface AboutContent {
   /** Single line shown above the bio, e.g. "Name - Role". */
   byline: string;
   bio: string[];
-  services: string[];
 }
 
 /** Single placeholder shown whenever Supabase content is unavailable. */
@@ -70,14 +62,7 @@ export const home: HomeContent = {
     { src: FALLBACK_IMAGE, alt: 'Film still — forest light' },
     { src: FALLBACK_IMAGE, alt: 'Film still — late-night interior' },
   ],
-  nowPlaying: {
-    youtubeId: 'eRsGyueVLvQ', // PLACEHOLDER — most recent film
-    title: 'Sintel',
-    year: '2026',
-    category: 'Short Film',
-    description:
-      'The latest release — a short film about the search for what we’ve lost, and what we find along the way.',
-  },
+  nowPlaying: { youtubeId: 'eVkBWjiSydU', title: 'Stardate: Unknown | Sci-Fi Comedy Short Film' },
 };
 
 export const about: AboutContent = {
@@ -88,126 +73,31 @@ export const about: AboutContent = {
     'As a freelance filmmaker, I bring years of storytelling experience to every project. From social media campaigns and commercials to event and wedding films, I have found that the key to success is always collaboration, creating work that is not only visually striking but also deeply connected to the people it is made for.',
     'If you’re looking for a filmmaker who values creativity and collaboration, let’s create something together.',
   ],
-  services: [
-    'Short Films',
-    'Commercials',
-    'Social Media Campaigns',
-    'Wedding Films',
-    'Event Coverage',
-  ],
 };
-
-export type WorkCategory = 'Short Film' | 'Commercial' | 'Wedding & Event' | 'Social';
 
 export interface Work {
   title: string;
-  year: string;
-  category: WorkCategory;
-  youtubeId: string; // PLACEHOLDER IDs — replace with real videos
-  description: string;
+  youtubeId: string;
 }
 
 export const works: Work[] = [
-  {
-    title: 'Sintel',
-    year: '2026',
-    category: 'Short Film',
-    youtubeId: 'eRsGyueVLvQ',
-    description: 'A short film about the search for what we’ve lost.',
-  },
-  {
-    title: 'Tears of Steel',
-    year: '2025',
-    category: 'Short Film',
-    youtubeId: 'R6MlUcmOul8',
-    description: 'A sci-fi short shot on location in the city.',
-  },
-  {
-    title: 'Elephants Dream',
-    year: '2025',
-    category: 'Short Film',
-    youtubeId: 'TLkA0RELQ1g',
-    description: 'A surreal two-hander about the worlds we build.',
-  },
-  {
-    title: 'Big Buck Bunny',
-    year: '2024',
-    category: 'Commercial',
-    youtubeId: 'aqz-KE-bpKQ',
-    description: 'A playful brand spot with a lot of heart.',
-  },
-  {
-    title: 'Spring',
-    year: '2024',
-    category: 'Commercial',
-    youtubeId: 'WhWc3b3KhnY',
-    description: 'A seasonal campaign film built around natural light.',
-  },
-  {
-    title: 'Operation Barbershop',
-    year: '2024',
-    category: 'Social',
-    youtubeId: 'mN0zPOpADL4',
-    description: 'A fast-cut social campaign teaser.',
-  },
-  {
-    title: 'Llamigos',
-    year: '2023',
-    category: 'Wedding & Event',
-    youtubeId: 'SkVqJ1SGeL0',
-    description: 'A celebration film — warm, candid, and true to the day.',
-  },
-  {
-    title: 'Cosmos Laundromat',
-    year: '2023',
-    category: 'Wedding & Event',
-    youtubeId: 'Y-rmzh0PI3c',
-    description: 'An event highlight film with an ensemble cast of guests.',
-  },
+  { title: 'QUEST BROS ep. 2 - The Feast of Fables', youtubeId: 'bj_3e3fa3jM' },
+  { title: 'Stardate: Unknown | Sci-Fi Comedy Short Film', youtubeId: 'eVkBWjiSydU' },
+  { title: 'The Arrangement', youtubeId: 'jtPLa5crpNo' },
+  { title: 'Gem Mint Holographic', youtubeId: 'Gmzc9YWM0C4' },
+  { title: 'Perspective or The Painting of a Magnificent Cowboy | Short Film', youtubeId: 'Ps79om0Kb8I' },
+  { title: 'Live-In Stand-Up', youtubeId: 'b1jM1SNoAF8' },
+  { title: 'Gourd of Darkness', youtubeId: 'pyM9V-7SF8c' },
+  { title: 'QUEST BROS ep. 1 The Ghost', youtubeId: 'V-13XrX4qAY' },
+  { title: 'Quest Bros', youtubeId: 'EWZaL3-usDE' },
 ];
 
 export interface Zine {
   title: string;
-  year: string;
   cover: string;
-  description: string;
   /** Interior page images shown in the slideshow after the cover. */
   pages: string[];
 }
 
-const zinePages = [FALLBACK_IMAGE, FALLBACK_IMAGE];
-
-export const zines: Zine[] = [
-  {
-    title: 'Frame Lines No. 1',
-    year: '2026',
-    cover: FALLBACK_IMAGE,
-    description:
-      'Production diaries, storyboards, and stills from a year of short films.',
-    pages: zinePages,
-  },
-  {
-    title: 'Puget Sound Notes',
-    year: '2025',
-    cover: FALLBACK_IMAGE,
-    description:
-      'A photo essay on the light, water, and weather of the Pacific Northwest.',
-    pages: zinePages,
-  },
-  {
-    title: 'Call Sheet',
-    year: '2025',
-    cover: FALLBACK_IMAGE,
-    description:
-      'Interviews and portraits of the collaborators behind the camera.',
-    pages: zinePages,
-  },
-  {
-    title: 'Seagull, Age Six',
-    year: '2024',
-    cover: FALLBACK_IMAGE,
-    description:
-      'Essays on theater, performance, and how storytelling begins.',
-    pages: zinePages,
-  },
-];
+/** Zines come from the Storage bucket; there is no static fallback. */
+export const zines: Zine[] = [];
