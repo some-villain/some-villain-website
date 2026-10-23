@@ -7,7 +7,7 @@ Next.js (App Router), TypeScript, and Tailwind CSS v4.
 
 - **Home** (`/`) — photo collage with an autoplaying film loop, intro, and a "Now Playing" feature
 - **About** (`/about`) — portrait, bio, and services
-- **Films** (`/films`) — filterable gallery of films with click-to-play YouTube embeds
+- **Films** (`/films`) — gallery of short films with click-to-play YouTube embeds
 - **Zines** (`/zines`) — print publications
 - **Upcoming** (`/upcoming`) — poster from the bucket's `Poster/` folder
 
@@ -30,12 +30,11 @@ Everything lives in Supabase: text and links in tables, images in Storage.
    editor. It creates the tables with public-read RLS, seeds the text content,
    and installs a trigger that registers every file in the `images` bucket.
 3. Upload images to the public `images` bucket: `Bio/` (About portrait),
-   `Collage/` (home collage), and `Zines/Zine<N>/` (files numbered by page,
+   `Collage/` (home collage), `Poster/` (Upcoming page), and `Zines/Zine<N>/` (files numbered by page,
    1 = cover; use png/jpg/webp, not .ai or .pdf). Each file gets
    a row in the `images` table automatically (edit its `alt` text there).
-4. Point content at images by id in the table editor:
-   `about_settings.portrait_image_id`,
-   `zines.cover_image_id`, and `zine_pages.image_id`.
+   Pages, the portrait and the collage are read from these folders; no
+   further wiring is needed.
 
 | Table | Holds |
 | --- | --- |
@@ -44,14 +43,14 @@ Everything lives in Supabase: text and links in tables, images in Storage.
 | `works` | videos in the Works gallery (`provider` + `video_id`, e.g. YouTube) |
 | `now_playing` | the single video featured on the home page (separate from `works`) |
 | `images` | registry of files in the `images` bucket (`path`, `alt`) |
-| `zines`, `zine_pages` | zine covers and ordered pages (image references) |
+| `zines` | zine titles and descriptions (pages come from `Zines/Zine<N>/`) |
 
 Image URLs are built from the path:
 `<SUPABASE_URL>/storage/v1/object/public/images/<path>`.
 
 Data flows through the fetchers in [`lib/data.ts`](lib/data.ts). If a table is
 empty or Supabase is unreachable, pages fall back to the static placeholder
-content in [`lib/content.ts`](lib/content.ts) (SVG stills in `public/stills/`).
+content in [`lib/content.ts`](lib/content.ts) (a single placeholder image, `public/fallback.svg`).
 
 ## Architecture
 
