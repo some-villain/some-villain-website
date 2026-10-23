@@ -26,9 +26,11 @@ Everything lives in Supabase: text and links in tables, images in Storage.
 
 1. Add your project keys to `.env.local`
    (see [Environment variables](#environment-variables)).
-2. Run [`supabase/schema.sql`](supabase/schema.sql) once in the Supabase SQL
-   editor. It creates the tables with public-read RLS, a policy that lets the
-   site list the bucket, and seed content.
+2. Only if the project has no tables yet: run
+   [`supabase/schema.sql`](supabase/schema.sql) once in the Supabase SQL editor.
+   It creates the tables with public-read RLS, a policy that lets the site list
+   the bucket, and seed content. A project that already has the tables needs no
+   SQL; the keys from step 1 are the whole connection.
 3. Create a public Storage bucket named `images` and upload to these folders
    (png, jpg, jpeg or webp, any letter case; not .ai or .pdf):
    - `Bio/`: the first file is the About portrait
@@ -118,8 +120,9 @@ to Supabase Image Transformations (see [Image resizing](#image-resizing)).
 
 ## Deployment
 
-Prerequisites: the repository is on GitHub, `supabase/schema.sql` has been run
-in your Supabase project, and the `images` bucket is public and populated.
+Prerequisites: the repository is on GitHub, the Supabase tables exist (see
+[`supabase/schema.sql`](supabase/schema.sql) for a new project), and the `images`
+bucket is public and populated.
 The project uses pnpm (`pnpm-lock.yaml`) and Next.js 16, which needs Node 20.9
 or newer. Both hosts detect the framework, package manager and build command
 (`pnpm build`) automatically.
