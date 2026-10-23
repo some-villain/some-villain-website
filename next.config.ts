@@ -6,6 +6,8 @@ const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
 
 const nextConfig: NextConfig = {
   images: {
+    // Resizes Supabase Storage images (see lib/supabaseImageLoader.ts)
+    loaderFile: "./lib/supabaseImageLoader.ts",
     remotePatterns: [
       // YouTube thumbnails for the click-to-play video embeds
       { protocol: "https", hostname: "i.ytimg.com" },
