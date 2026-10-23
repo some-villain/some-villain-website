@@ -4,8 +4,8 @@
 --   Videos          -> works (provider + video_id, e.g. YouTube)
 --   Images          -> files live in the public Storage bucket "images";
 --                      the images table registers each file by its path in the bucket
---                      (kept in sync by a trigger on storage.objects) and every other
---                      table points at images.id.
+--                      (kept in sync by a trigger on storage.objects). The site reads
+--                      Bio/, Collage/, Poster/ and Zines/Zine<N>/ by folder.
 --
 -- Public URL of an image: <SUPABASE_URL>/storage/v1/object/public/images/<images.path>
 -- All tables are publicly readable (anon SELECT) with no public writes.
@@ -47,7 +47,6 @@ create table if not exists home_settings (
 
 create table if not exists about_settings (
   id integer primary key default 1 check (id = 1),
-  portrait_image_id bigint references images (id) on delete set null,
   byline text not null default '', -- one line shown above the bio
   bio text not null -- separate paragraphs with a blank line
 );
@@ -84,31 +83,18 @@ create table if not exists now_playing (
 );
 
 -- ---------------------------------------------------------------------------
--- Zines: cover image + ordered interior pages (all from the images registry)
+-- Zines: title and description only; cover and pages come from Zines/Zine<N>/ in the bucket
 -- ---------------------------------------------------------------------------
 create table if not exists zines (
   id bigint generated always as identity primary key,
   slug text unique, -- stable key, e.g. 'zine-1'
   title text not null,
   year text not null,
-  cover_image_id bigint references images (id) on delete set null,
   description text not null default '', -- not shown on the site
   sort_order integer not null default 0
 );
 
-create table if not exists zine_pages (
-  id bigint generated always as identity primary key,
-  zine_id bigint not null references zines (id) on delete cascade,
-  image_id bigint not null references images (id) on delete cascade,
-  sort_order integer not null default 0
-);
-
-create unique index if not exists zine_pages_zine_image_key on zine_pages (zine_id, image_id);
 create unique index if not exists works_provider_video_key on works (provider, video_id);
-create index if not exists zine_pages_zine_id_idx on zine_pages (zine_id);
-create index if not exists zines_cover_image_id_idx on zines (cover_image_id);
-create index if not exists zine_pages_image_id_idx on zine_pages (image_id);
-create index if not exists about_settings_portrait_idx on about_settings (portrait_image_id);
 
 -- ---------------------------------------------------------------------------
 -- Row Level Security: public read, no public writes
@@ -122,7 +108,6 @@ alter table services enable row level security;
 alter table works enable row level security;
 alter table now_playing enable row level security;
 alter table zines enable row level security;
-alter table zine_pages enable row level security;
 
 create policy "Public read images" on images for select using (true);
 create policy "Public read site_settings" on site_settings for select using (true);
@@ -133,7 +118,6 @@ create policy "Public read services" on services for select using (true);
 create policy "Public read works" on works for select using (true);
 create policy "Public read now_playing" on now_playing for select using (true);
 create policy "Public read zines" on zines for select using (true);
-create policy "Public read zine_pages" on zine_pages for select using (true);
 
 -- ---------------------------------------------------------------------------
 -- Seed: text content (from the current placeholder copy in lib/content.ts)
@@ -179,7 +163,8 @@ insert into works (title, year, category, provider, video_id, description, sort_
 -- ---------------------------------------------------------------------------
 -- Keep the images registry in sync with the "images" bucket
 -- Upload a file in Storage (any subfolder) and a row appears in images;
--- rename/move keeps the same row (so references survive); delete removes it.
+-- rename/move keeps the same row; delete removes it. A file in Zines/Zine<N>/
+-- also creates that zine's row (title "Vol. N"; edit title/description in the table editor).
 -- Failures here never block an upload.
 -- ---------------------------------------------------------------------------
 create or replace function public.sync_image_registry()
@@ -188,28 +173,38 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  zine_no text;
 begin
   begin
-    if tg_op = 'INSERT' then
-      if new.bucket_id = 'images' and new.name !~ '\.emptyFolderPlaceholder$' then
-        insert into public.images (path, alt)
-        values (new.name, replace(regexp_replace(regexp_replace(new.name, '^.*/', ''), '(_[a-z0-9]{6})?\.[A-Za-z]+$', ''), '_', ' '))
-        on conflict (path) do nothing;
-      end if;
-      return new;
-    elsif tg_op = 'UPDATE' then
-      if new.bucket_id = 'images' and old.bucket_id = 'images' and new.name <> old.name then
-        update public.images set path = new.name where path = old.name;
-      end if;
-      return new;
-    else
+    if tg_op = 'DELETE' then
       if old.bucket_id = 'images' then
         delete from public.images where path = old.name;
       end if;
       return old;
     end if;
+
+    if tg_op = 'UPDATE' then
+      if new.bucket_id = 'images' and old.bucket_id = 'images' and new.name <> old.name then
+        update public.images set path = new.name where path = old.name;
+      end if;
+    elsif new.bucket_id = 'images' and new.name !~ '\.emptyFolderPlaceholder$' then
+      insert into public.images (path, alt)
+      values (new.name, replace(regexp_replace(regexp_replace(new.name, '^.*/', ''), '(_[a-z0-9]{6})?\.[A-Za-z]+$', ''), '_', ' '))
+      on conflict (path) do nothing;
+    end if;
+
+    if new.bucket_id = 'images' then
+      zine_no := (regexp_match(new.name, '^Zines/Zine\s*([0-9]+)/', 'i'))[1];
+      if zine_no is not null then
+        insert into public.zines (slug, title, year, description, sort_order)
+        values ('zine-' || zine_no, 'Vol. ' || zine_no, '2026', '', zine_no::int)
+        on conflict (slug) do nothing;
+      end if;
+    end if;
+    return new;
   exception when others then
-    if tg_op = 'DELETE' then return old; else return new; end if;
+    return new;
   end;
 end;
 $$;
@@ -226,12 +221,13 @@ where o.bucket_id = 'images' and o.name !~ '\.emptyFolderPlaceholder$'
 on conflict (path) do nothing;
 
 -- ---------------------------------------------------------------------------
--- Wire uploaded images into content (safe to re-run)
---   Zines/Zine<N>/   files named "<page>_..." or "<page> ...": 1 = cover, last = back cover
+-- Folder wiring (safe to re-run)
+--   Zines/Zine<N>/   files named "<page> ...": page 1 = cover, last = back cover
 --   Bio/             first file is the About portrait
---   Collage/         home collage: every image in this folder rotates through the collage (no table rows needed)
--- Only png/jpg/webp are used (browsers can't display .ai or .pdf).
--- Zine title, year, and description are placeholders: edit in the table editor.
+--   Collage/         every image rotates through the home collage
+--   Poster/          first file is the Upcoming page poster
+-- Only png/jpg/jpeg/webp are used (browsers can't display .ai or .pdf).
+-- This section only sets alt text and creates zines rows for folders that already exist.
 -- ---------------------------------------------------------------------------
 with parsed as (
   select id,
@@ -250,20 +246,10 @@ set alt = 'Zine ' || r.zine_no || ', ' ||
 from ranked r
 where r.id = i.id;
 
-insert into zines (slug, title, year, description, sort_order, cover_image_id)
-select 'zine-' || n, 'Vol. ' || n, '2026', '', n,
-       (select i.id from images i
-        where i.path ~* ('^Zines/Zine' || n || '/1[ _].*\.(png|jpe?g|webp)$') limit 1)
-from generate_series(1, 5) as n
-on conflict (slug) do update set cover_image_id = excluded.cover_image_id;
+insert into zines (slug, title, year, description, sort_order)
+select distinct 'zine-' || n, 'Vol. ' || n, '2026', '', n
+from (select (regexp_match(path, '^Zines/Zine\s*([0-9]+)/', 'i'))[1]::int as n from images) folders
+where n is not null
+on conflict (slug) do nothing;
 
-insert into zine_pages (zine_id, image_id, sort_order)
-select z.id, i.id, (regexp_match(regexp_replace(i.path, '^.*/', ''), '^([0-9]+)'))[1]::int
-from zines z
-join images i on i.path ~* ('^Zines/Zine' || substr(z.slug, 6) || '/([2-9]|[1-9][0-9])[ _].*\.(png|jpe?g|webp)$')
-on conflict (zine_id, image_id) do nothing;
-
-update about_settings
-set portrait_image_id = (select id from images where path like 'Bio/%' order by path limit 1)
-where id = 1 and portrait_image_id is null;
 update images set alt = 'Portrait of Andrew Davies' where path like 'Bio/%';
