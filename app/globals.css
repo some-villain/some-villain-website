@@ -37,6 +37,7 @@
   }
 }
 
+html,
 body {
   background-color: var(--color-ink);
   color: var(--color-cream);
