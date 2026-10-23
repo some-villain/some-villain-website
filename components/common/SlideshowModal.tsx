@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import Image from 'next/image';
 
 export interface SlideshowModalProps {
@@ -13,9 +13,38 @@ export interface SlideshowModalProps {
  * Full-screen slideshow modal. Clicking the current slide (or the arrows, or
  * pressing the arrow keys) pages through the slides with a soft cross-fade;
  * Escape, the close button, or a backdrop click dismisses it.
+ *
+ * Only the current page and the next one are fetched (the rest load as you flip).
+ * Pages are sized by orientation so the slideshow stays uniform: every vertical
+ * page is the same (large) height and every horizontal page is the same (large)
+ * width, both scaled to the browser window.
  */
+
+// Space taken by the page arrows and modal padding, subtracted from the width.
+const SIDE_GUTTER = 'calc(100vw - 9rem)';
+const PAGE_HEIGHT = '82vh'; // height of every vertical page
+const SPREAD_WIDTH = `min(${SIDE_GUTTER}, 126vh)`; // width of every horizontal page
+
+const pageSize = (size: { width: number; height: number } | undefined): CSSProperties => {
+  const { width, height } = size ?? { width: 3, height: 4 }; // portrait until measured
+  const aspectRatio = `${width} / ${height}`;
+  return width > height
+    ? { width: SPREAD_WIDTH, maxHeight: PAGE_HEIGHT, aspectRatio }
+    : { height: PAGE_HEIGHT, maxWidth: SIDE_GUTTER, aspectRatio };
+};
+
 const SlideshowModal = ({ title, slides, onClose }: SlideshowModalProps) => {
   const [index, setIndex] = useState(0);
+  const [sizes, setSizes] = useState<Record<string, { width: number; height: number }>>({});
+
+  // Orientation is learned from each page as it loads (current page + the preloaded next one)
+  const recordSize = useCallback(
+    (src: string, { naturalWidth, naturalHeight }: HTMLImageElement) =>
+      setSizes((known) =>
+        known[src] ? known : { ...known, [src]: { width: naturalWidth, height: naturalHeight } }
+      ),
+    []
+  );
 
   const next = useCallback(
     () => setIndex((i) => (i + 1) % slides.length),
@@ -41,13 +70,14 @@ const SlideshowModal = ({ title, slides, onClose }: SlideshowModalProps) => {
   }, [next, prev, onClose]);
 
   const slide = slides[index];
+  const upcoming = slides.length > 1 ? slides[(index + 1) % slides.length] : null;
 
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-label={`${title} slideshow`}
-      className="fixed inset-0 z-[60] flex animate-fade-in flex-col items-center justify-center bg-ink/95 p-5 backdrop-blur-sm sm:p-10"
+      className="fixed inset-0 z-[60] flex animate-fade-in flex-col items-center justify-center bg-ink/95 p-3 backdrop-blur-sm sm:p-6"
       onClick={onClose}
     >
       <button
@@ -62,7 +92,7 @@ const SlideshowModal = ({ title, slides, onClose }: SlideshowModalProps) => {
       </button>
 
       <div
-        className="flex w-full max-w-4xl animate-zoom-fade-in flex-col items-center gap-5"
+        className="flex w-full animate-zoom-fade-in flex-col items-center gap-3"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex w-full items-center justify-center gap-3 sm:gap-6">
@@ -82,19 +112,35 @@ const SlideshowModal = ({ title, slides, onClose }: SlideshowModalProps) => {
             onClick={next}
             aria-label="Next page"
             title="Click to turn the page"
-            className="relative h-[70vh] w-full max-w-xl cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            style={pageSize(sizes[slide.src])}
+            className="relative shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <div key={index} className="absolute inset-0 animate-fade-in">
               <Image
                 src={slide.src}
                 alt={slide.alt}
                 fill
-                sizes="100vw"
+                sizes="(max-width: 768px) 100vw, 90vw"
                 className="object-contain"
                 priority
+                onLoad={(event) => recordSize(slide.src, event.currentTarget)}
               />
             </div>
           </button>
+
+          {upcoming && (
+            <div className="hidden" aria-hidden>
+              <Image
+                key={upcoming.src}
+                src={upcoming.src}
+                alt=""
+                fill
+                sizes="(max-width: 768px) 100vw, 90vw"
+                loading="eager"
+                onLoad={(event) => recordSize(upcoming.src, event.currentTarget)}
+              />
+            </div>
+          )}
 
           <button
             type="button"

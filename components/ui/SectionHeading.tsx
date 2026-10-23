@@ -2,19 +2,30 @@ import { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface SectionHeadingProps extends React.HTMLAttributes<HTMLDivElement> {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
+  /** Heading level to render; defaults to h2. */
+  as?: 'h1' | 'h2';
+  /** Replaces the default heading size (text-3xl sm:text-4xl). */
+  titleClassName?: string;
 }
 
 const SectionHeading = forwardRef<HTMLDivElement, SectionHeadingProps>(
-  ({ eyebrow, title, className, ...props }, ref) => (
+  ({ eyebrow, title, as: Heading = 'h2', titleClassName, className, ...props }, ref) => (
     <div ref={ref} className={cn('space-y-3', className)} {...props}>
-      <p className="font-display text-xs font-medium uppercase tracking-[0.3em] text-accent">
-        {eyebrow}
-      </p>
-      <h2 className="font-display text-3xl font-semibold uppercase tracking-tight text-cream sm:text-4xl">
+      {eyebrow && (
+        <p className="font-display text-xs font-medium uppercase tracking-[0.3em] text-accent">
+          {eyebrow}
+        </p>
+      )}
+      <Heading
+        className={cn(
+          'font-display font-semibold uppercase tracking-tight text-cream',
+          titleClassName ?? 'text-3xl sm:text-4xl'
+        )}
+      >
         {title}
-      </h2>
+      </Heading>
     </div>
   )
 );
