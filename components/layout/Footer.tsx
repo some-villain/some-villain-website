@@ -39,7 +39,7 @@ const Footer = ({ site }: FooterProps) => (
         </ul>
       </div>
     </div>
-    <div className="border-t border-line py-5 text-center text-xs tracking-wide text-muted">
+    <div className="border-t border-line pt-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] text-center text-xs tracking-wide text-muted">
       © {new Date().getFullYear()} {site.name}. All rights reserved.
     </div>
   </footer>
