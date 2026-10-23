@@ -3,10 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { navLinks, site } from '@/lib/content';
+import { navLinks, type SiteContent } from '@/lib/content';
 import { cn } from '@/lib/utils';
 
-const Navbar = () => {
+export interface NavbarProps {
+  site: SiteContent;
+}
+
+const Navbar = ({ site }: NavbarProps) => {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -22,7 +26,6 @@ const Navbar = () => {
           onClick={() => setOpen(false)}
         >
           {site.name}
-          <span className="ml-2 text-accent">Film</span>
         </Link>
 
         {/* Desktop links */}

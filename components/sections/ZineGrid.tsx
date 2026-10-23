@@ -3,15 +3,18 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { SlideshowModal } from '@/components/common';
-import { Badge } from '@/components/ui';
-import { zines, type Zine } from '@/lib/content';
+import { type Zine } from '@/lib/content';
 
 const zineSlides = (zine: Zine) => [
   { src: zine.cover, alt: `${zine.title} — cover` },
   ...zine.pages.map((src, i) => ({ src, alt: `${zine.title} — page ${i + 1}` })),
 ];
 
-const ZineGrid = () => {
+export interface ZineGridProps {
+  zines: Zine[];
+}
+
+const ZineGrid = ({ zines }: ZineGridProps) => {
   const [openZine, setOpenZine] = useState<Zine | null>(null);
 
   return (
@@ -36,15 +39,9 @@ const ZineGrid = () => {
                 Flip Through
               </span>
             </button>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="font-display text-base font-semibold uppercase tracking-wide text-cream">
-                  {zine.title}
-                </h2>
-                <Badge>{zine.year}</Badge>
-              </div>
-              <p className="text-sm leading-relaxed text-muted">{zine.description}</p>
-            </div>
+            <h2 className="font-display text-base font-semibold uppercase tracking-wide text-cream">
+              {zine.title}
+            </h2>
           </li>
         ))}
       </ul>
