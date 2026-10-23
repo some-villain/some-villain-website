@@ -122,10 +122,18 @@ to Supabase Image Transformations (see [Image resizing](#image-resizing)).
 ## Deployment
 
 Prerequisites: the repository is on GitHub, `supabase/schema.sql` has been run
-in your Supabase project, and the `images` bucket is public and populated.
+in your Supabase project (or, for an existing project,
+`supabase/migrate-to-storage-listing.sql`, which must run before deploying this
+version), and the `images` bucket is public and populated.
 The project uses pnpm (`pnpm-lock.yaml`) and Next.js 16, which needs Node 20.9
 or newer. Both hosts detect the framework, package manager and build command
 (`pnpm build`) automatically.
+
+Pages are built from Supabase data and then refreshed in the background every
+5 minutes. After editing a table or uploading an image, allow up to 5 minutes
+for the live site to update (or redeploy to refresh immediately). If Supabase is
+unreachable during a build, the build still succeeds with the fallback content
+until the next refresh.
 
 ### Vercel
 
@@ -194,6 +202,21 @@ Components follow Atomic Design:
 - `components/layout/` — Navbar, Footer
 - `components/sections/` — page sections (HeroCollage, NowPlaying, WorksGrid)
 
+Data and images:
+
+- `lib/data.ts` — the only code that talks to Supabase (cached fetchers with fallbacks)
+- `lib/images.ts` — bucket helpers: public URLs, accepted formats, page ordering
+- `lib/supabaseImageLoader.ts` — `next/image` loader (resizing)
+- `lib/content.ts` — shared content types and static fallbacks
+
 The `YouTubePlayer` is a "lite embed": it renders only the video thumbnail
 until clicked, keeping the gallery fast. The hero `AutoplayVideo` is muted and
 looped, since browsers only allow autoplay for muted video.
+
+## Before launch
+
+- Replace the placeholder background loop: `home_settings.hero_video_id` is still
+  the placeholder video ID.
+- Confirm Films and Now Playing should not share a video (`eVkBWjiSydU` is both).
+- Run `pnpm test` and `pnpm build`, and check that the build output lists the
+  routes as static.
