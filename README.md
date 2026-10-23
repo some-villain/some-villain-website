@@ -31,7 +31,9 @@ Everything lives in Supabase: text and links in tables, images in Storage.
    site list the bucket, and seed content. A project created from an earlier
    version of the schema should run
    [`supabase/migrate-to-storage-listing.sql`](supabase/migrate-to-storage-listing.sql)
-   instead.
+   instead. Once the new version of the site is live, optionally run
+   [`supabase/cleanup-legacy-tables.sql`](supabase/cleanup-legacy-tables.sql)
+   to drop the tables it no longer uses.
 3. Create a public Storage bucket named `images` and upload to these folders
    (png, jpg, jpeg or webp, any letter case; not .ai or .pdf):
    - `Bio/`: the first file is the About portrait
@@ -122,9 +124,9 @@ to Supabase Image Transformations (see [Image resizing](#image-resizing)).
 ## Deployment
 
 Prerequisites: the repository is on GitHub, `supabase/schema.sql` has been run
-in your Supabase project (or, for an existing project,
-`supabase/migrate-to-storage-listing.sql`, which must run before deploying this
-version), and the `images` bucket is public and populated.
+in your Supabase project (an existing project needs only
+`supabase/migrate-to-storage-listing.sql`, which adds the policy that lets the
+site list the bucket), and the `images` bucket is public and populated.
 The project uses pnpm (`pnpm-lock.yaml`) and Next.js 16, which needs Node 20.9
 or newer. Both hosts detect the framework, package manager and build command
 (`pnpm build`) automatically.
