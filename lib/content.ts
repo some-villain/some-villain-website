@@ -5,7 +5,7 @@
  * supabase/schema.sql). The values here are used as fallbacks whenever a
  * table is empty or unreachable, so the site always renders. Video
  * placeholders point to Blender Foundation open movies; images are generated
- * SVG placeholders in /public/stills.
+ * a single placeholder image (/fallback.svg).
  */
 
 export interface SiteContent {
@@ -37,6 +37,9 @@ export interface AboutContent {
   services: string[];
 }
 
+/** Single placeholder shown whenever Supabase content is unavailable. */
+const FALLBACK_IMAGE = '/fallback.svg';
+
 export const site: SiteContent = {
   name: 'Some Villain',
   tagline: 'Seattle-based film and zine makers',
@@ -60,12 +63,12 @@ export const home: HomeContent = {
   heroVideoId: 'WpX3ctbQq0E', // Autoplaying background film loop on the home page
   intro: 'Seattle-based film and zine makers',
   collage: [
-    { src: '/stills/still-01.svg', alt: 'Film still — dusk over the Puget Sound' },
-    { src: '/stills/still-02.svg', alt: 'Film still — golden hour close-up' },
-    { src: '/stills/still-03.svg', alt: 'Film still — neon-lit street scene' },
-    { src: '/stills/still-04.svg', alt: 'Film still — behind the scenes on set' },
-    { src: '/stills/still-05.svg', alt: 'Film still — forest light' },
-    { src: '/stills/still-06.svg', alt: 'Film still — late-night interior' },
+    { src: FALLBACK_IMAGE, alt: 'Film still — dusk over the Puget Sound' },
+    { src: FALLBACK_IMAGE, alt: 'Film still — golden hour close-up' },
+    { src: FALLBACK_IMAGE, alt: 'Film still — neon-lit street scene' },
+    { src: FALLBACK_IMAGE, alt: 'Film still — behind the scenes on set' },
+    { src: FALLBACK_IMAGE, alt: 'Film still — forest light' },
+    { src: FALLBACK_IMAGE, alt: 'Film still — late-night interior' },
   ],
   nowPlaying: {
     youtubeId: 'eRsGyueVLvQ', // PLACEHOLDER — most recent film
@@ -78,7 +81,7 @@ export const home: HomeContent = {
 };
 
 export const about: AboutContent = {
-  portrait: { src: '/stills/portrait.svg', alt: 'Portrait of Andrew Davies' },
+  portrait: { src: FALLBACK_IMAGE, alt: 'Portrait of Andrew Davies' },
   byline: 'Andrew Davies - Creative Director',
   bio: [
     'I’m a writer, filmmaker, and performer from Seattle, WA with a lifelong passion for storytelling that began when I played a seagull in Treasure Island at age six. Theater taught me the power of collaboration, the magic that happens when creatives combine their different perspectives and skills. Today I channel that magic into my short films and creative work.',
@@ -172,40 +175,39 @@ export interface Zine {
   pages: string[];
 }
 
-const zinePages = (id: string) =>
-  [1, 2, 3].map((n) => `/stills/${id}-page-${n}.svg`);
+const zinePages = [FALLBACK_IMAGE, FALLBACK_IMAGE];
 
 export const zines: Zine[] = [
   {
     title: 'Frame Lines No. 1',
     year: '2026',
-    cover: '/stills/zine-01.svg',
+    cover: FALLBACK_IMAGE,
     description:
       'Production diaries, storyboards, and stills from a year of short films.',
-    pages: zinePages('zine-01'),
+    pages: zinePages,
   },
   {
     title: 'Puget Sound Notes',
     year: '2025',
-    cover: '/stills/zine-02.svg',
+    cover: FALLBACK_IMAGE,
     description:
       'A photo essay on the light, water, and weather of the Pacific Northwest.',
-    pages: zinePages('zine-02'),
+    pages: zinePages,
   },
   {
     title: 'Call Sheet',
     year: '2025',
-    cover: '/stills/zine-03.svg',
+    cover: FALLBACK_IMAGE,
     description:
       'Interviews and portraits of the collaborators behind the camera.',
-    pages: zinePages('zine-03'),
+    pages: zinePages,
   },
   {
     title: 'Seagull, Age Six',
     year: '2024',
-    cover: '/stills/zine-04.svg',
+    cover: FALLBACK_IMAGE,
     description:
       'Essays on theater, performance, and how storytelling begins.',
-    pages: zinePages('zine-04'),
+    pages: zinePages,
   },
 ];
