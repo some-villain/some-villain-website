@@ -1,35 +1,64 @@
 /**
- * All editable site content lives here.
+ * Static fallback content and shared content types.
  *
- * Video placeholders currently point to Blender Foundation open movies —
- * swap each `youtubeId` for Andrew's real videos (the ID is the part after
- * `watch?v=` in a YouTube URL). Swap the SVG placeholders in /public/stills
- * for real photographs, keeping the same file names or updating the paths below.
+ * Live content comes from Supabase via the fetchers in lib/data.ts (schema in
+ * supabase/schema.sql). The values here are used as fallbacks whenever a
+ * table is empty or unreachable, so the site always renders. Video
+ * placeholders point to Blender Foundation open movies; images are generated
+ * SVG placeholders in /public/stills.
  */
 
-export const site = {
-  name: 'Andrew Davies',
-  tagline: 'Filmmaker & Storyteller',
+export interface SiteContent {
+  name: string;
+  tagline: string;
+  location: string;
+  email: string;
+  socials: Array<{ label: string; href: string }>;
+}
+
+export interface HomeContent {
+  heroVideoId: string;
+  intro: string;
+  collage: Array<{ src: string; alt: string }>;
+  nowPlaying: {
+    youtubeId: string;
+    title: string;
+    year: string;
+    category: string;
+    description: string;
+  };
+}
+
+export interface AboutContent {
+  portrait: { src: string; alt: string };
+  /** Single line shown above the bio, e.g. "Name - Role". */
+  byline: string;
+  bio: string[];
+  services: string[];
+}
+
+export const site: SiteContent = {
+  name: 'Some Villain',
+  tagline: 'Seattle-based film and zine makers',
   location: 'Seattle, WA',
-  email: 'hello@andrewdaviesfilm.com',
+  email: 'somevillainfilms@gmail.com',
   socials: [
-    { label: 'Instagram', href: 'https://instagram.com' },
-    { label: 'Vimeo', href: 'https://vimeo.com' },
-    { label: 'YouTube', href: 'https://youtube.com' },
+    { label: 'Instagram', href: 'https://www.instagram.com/some.villain' },
+    { label: 'YouTube', href: 'https://youtube.com/@some.villain' },
   ],
 };
 
 export const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Works', href: '/works' },
+  { label: 'Films', href: '/films' },
   { label: 'Zines', href: '/zines' },
+  { label: 'Upcoming', href: '/upcoming' },
 ];
 
-export const home = {
-  heroVideoId: 'aqz-KE-bpKQ', // PLACEHOLDER — autoplaying hero reel
-  intro:
-    'I’m Andrew Davies, a Seattle-based filmmaker and storyteller. I create short films, social media campaigns, event and wedding videos, and commercial work, all with a focus on authenticity, collaboration, and creativity.',
+export const home: HomeContent = {
+  heroVideoId: 'WpX3ctbQq0E', // Autoplaying background film loop on the home page
+  intro: 'Seattle-based film and zine makers',
   collage: [
     { src: '/stills/still-01.svg', alt: 'Film still — dusk over the Puget Sound' },
     { src: '/stills/still-02.svg', alt: 'Film still — golden hour close-up' },
@@ -48,8 +77,9 @@ export const home = {
   },
 };
 
-export const about = {
+export const about: AboutContent = {
   portrait: { src: '/stills/portrait.svg', alt: 'Portrait of Andrew Davies' },
+  byline: 'Andrew Davies - Creative Director',
   bio: [
     'I’m a writer, filmmaker, and performer from Seattle, WA with a lifelong passion for storytelling that began when I played a seagull in Treasure Island at age six. Theater taught me the power of collaboration, the magic that happens when creatives combine their different perspectives and skills. Today I channel that magic into my short films and creative work.',
     'As a freelance filmmaker, I bring years of storytelling experience to every project. From social media campaigns and commercials to event and wedding films, I have found that the key to success is always collaboration, creating work that is not only visually striking but also deeply connected to the people it is made for.',
