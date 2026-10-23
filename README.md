@@ -62,9 +62,11 @@ served from the host's edge rather than querying Supabase on every visit.
 
 If a table is empty, Supabase is unreachable or a query exceeds 2.5 seconds,
 the fetcher logs `[supabase] <name> failed, using fallback content` to the
-server log and the page uses the static fallbacks in
+server log (development only: production builds strip all `console.*` calls
+via `compiler.removeConsole` in `next.config.ts`) and the page uses the static fallbacks in
 [`lib/content.ts`](lib/content.ts) (a single placeholder image,
-`public/fallback.svg`). Watch for that line in your host's logs.
+`public/fallback.svg`). To see these failures in production, change `removeConsole` to
+`{ exclude: ["error"] }`.
 
 ### Image resizing
 
