@@ -5,7 +5,7 @@ Next.js (App Router), TypeScript, and Tailwind CSS v4.
 
 ## Pages
 
-- **Home** (`/`) — photo collage with an autoplaying film loop, intro, and a "Now Playing" feature
+- **Home** (`/`) — photo collage with an autoplaying film loop, intro, and "Now Playing" and "Coming Soon" features
 - **About** (`/about`) — portrait and bio
 - **Films** (`/films`) — gallery of short films with click-to-play YouTube embeds
 - **Zines** (`/zines`) — print publications
@@ -47,7 +47,7 @@ Everything lives in Supabase: text and links in tables, images in Storage.
 | `site_settings`, `home_settings`, `about_settings` | text |
 | `social_links` | social media links |
 | `works` | videos in the Films gallery (`provider` + `video_id`, e.g. YouTube) |
-| `now_playing` | the single video featured on the home page (separate from `works`) |
+| `now_playing` | the videos featured on the home page (separate from `works`): the first row with `coming_soon` false is "Now Playing", the first with `coming_soon` true is "Coming Soon" |
 | `upcoming` | Upcoming page items: `title`, `poster` (file name in `Poster/`), `description` (blank line between paragraphs), `trailer` (YouTube link), `sort_order` |
 
 Image URLs are
