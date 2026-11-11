@@ -17,15 +17,15 @@ export default async function UpcomingPage() {
       <SectionHeading title="Upcoming" />
       {upcoming.map((item, index) => (
         <section key={item.title} aria-label={item.title} className="flex flex-col gap-y-10 sm:gap-y-12">
-          {/* Poster and trailer are centered and indented from the headings (up to 48rem wide), so their size never depends on screen height */}
+          {/* Poster and trailer are centered and indented from the headings (up to 64rem wide), so their size never depends on screen height */}
           <Image
             src={item.poster.src}
             alt={item.poster.alt}
             width={0}
             height={0}
             priority={index === 0}
-            sizes="(max-width: 768px) 100vw, 768px"
-            className="mx-auto h-auto w-full max-w-3xl"
+            sizes="(max-width: 1024px) 100vw, 1024px"
+            className="mx-auto h-auto w-full max-w-5xl"
           />
           {/* The box is sized by screen width only */}
           <div className="mx-auto my-4.5 w-[clamp(18rem,45vw,40rem)] max-w-full space-y-5 bg-black px-12 py-6 text-center text-pretty sm:my-6 sm:space-y-6 sm:px-18 sm:py-8 text-base leading-7 text-cream/90 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
@@ -34,7 +34,7 @@ export default async function UpcomingPage() {
             ))}
           </div>
           <SectionHeading title="Trailer" className="mb-6 sm:mb-4" />
-          <YouTubePlayer youtubeId={item.trailerId} title={`${item.title} trailer`} className="mx-auto w-full max-w-3xl" />
+          <YouTubePlayer youtubeId={item.trailerId} title={`${item.title} trailer`} className="mx-auto w-full max-w-5xl" />
         </section>
       ))}
     </div>
