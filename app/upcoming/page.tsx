@@ -31,10 +31,13 @@ export default async function UpcomingPage() {
             sizes="100vw"
             className="col-start-2 mx-auto h-auto max-h-[80dvh] w-auto max-w-full"
           />
-          <div className="col-start-2 mx-auto my-4.5 w-0 min-w-[calc(100%-6rem)] space-y-5 bg-black px-12 py-6 text-center text-pretty sm:my-6 sm:min-w-[calc(100%-9rem)] sm:px-18 sm:py-8 text-base leading-7 text-cream/90 sm:space-y-6 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
-            {item.description.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+          {/* Zero-width, full-row wrapper: the box inside is sized by screen width and does not affect the poster/trailer column */}
+          <div className="col-span-full w-0 min-w-full">
+            <div className="mx-auto my-4.5 w-[clamp(18rem,45vw,40rem)] max-w-full space-y-5 bg-black px-12 py-6 text-center text-pretty sm:my-6 sm:space-y-6 sm:px-18 sm:py-8 text-base leading-7 text-cream/90 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
+              {item.description.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
           </div>
           {/* Spans the full width so it lines up with the Upcoming heading; its gap to the video matches that heading's (4rem) */}
           <SectionHeading title="Trailer" className="col-span-full mb-6 w-0 min-w-full sm:mb-4" />
