@@ -17,23 +17,20 @@ export default async function UpcomingPage() {
       <SectionHeading title="Upcoming" />
       {upcoming.map((item, index) => (
         <section key={item.title} aria-label={item.title} className="space-y-8">
-          {/* Poster left, description right on desktop; stacked on mobile */}
-          <div className="grid gap-8 md:grid-cols-2 md:items-center">
-            {/* Natural aspect ratio, capped to the viewport height so the poster never overflows the screen */}
-            <Image
-              src={item.poster.src}
-              alt={item.poster.alt}
-              width={0}
-              height={0}
-              priority={index === 0}
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="mx-auto h-auto max-h-[80dvh] w-auto max-w-full"
-            />
-            <div className="space-y-4 text-base leading-relaxed text-cream/90 sm:text-lg">
-              {item.description.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
+          {/* Natural aspect ratio, capped to the viewport height so the poster never overflows the screen */}
+          <Image
+            src={item.poster.src}
+            alt={item.poster.alt}
+            width={0}
+            height={0}
+            priority={index === 0}
+            sizes="100vw"
+            className="mx-auto h-auto max-h-[80dvh] w-auto max-w-full"
+          />
+          <div className="mx-auto max-w-3xl space-y-4 text-base leading-relaxed text-cream/90 sm:text-lg">
+            {item.description.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
           <YouTubePlayer youtubeId={item.trailerId} title={`${item.title} trailer`} />
         </section>
