@@ -9,7 +9,7 @@ Next.js (App Router), TypeScript, and Tailwind CSS v4.
 - **About** (`/about`) — portrait and bio
 - **Films** (`/films`) — gallery of short films with click-to-play YouTube embeds
 - **Zines** (`/zines`) — print publications
-- **Upcoming** (`/upcoming`) — poster from the bucket's `Poster/` folder
+- **Upcoming** (`/upcoming`) — poster and description side by side, with the trailer below (from the `upcoming` table)
 
 ## Getting started
 
@@ -35,7 +35,7 @@ Everything lives in Supabase: text and links in tables, images in Storage.
    (png, jpg, jpeg or webp, any letter case; not .ai or .pdf):
    - `Bio/`: the first file is the About portrait
    - `Collage/`: every image rotates through the home collage
-   - `Poster/`: the first file is the Upcoming page poster
+   - `Poster/`: upcoming posters; each `upcoming` row names its file
    - `Zines/Zine<N>/`: files named `<page> <name>.<ext>`; page 1 is the cover
      and the zine is titled "Vol. N"
 
@@ -48,6 +48,7 @@ Everything lives in Supabase: text and links in tables, images in Storage.
 | `social_links` | social media links |
 | `works` | videos in the Films gallery (`provider` + `video_id`, e.g. YouTube) |
 | `now_playing` | the single video featured on the home page (separate from `works`) |
+| `upcoming` | Upcoming page items: `title`, `poster` (file name in `Poster/`), `description` (blank line between paragraphs), `trailer` (YouTube link), `sort_order` |
 
 Image URLs are
 `<SUPABASE_URL>/storage/v1/object/public/images/<path>`.
