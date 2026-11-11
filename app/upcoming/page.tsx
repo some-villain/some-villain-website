@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import { YouTubePlayer } from '@/components/common';
 import { SectionHeading } from '@/components/ui';
-import { getPoster } from '@/lib/data';
+import { getUpcoming } from '@/lib/data';
 
 export const metadata: Metadata = {
   title: 'Upcoming',
@@ -9,17 +10,35 @@ export const metadata: Metadata = {
 };
 
 export default async function UpcomingPage() {
-  const poster = await getPoster();
+  const upcoming = await getUpcoming();
 
-  // Page height is the viewport below the 4rem navbar; the poster takes whatever the heading leaves
   return (
-    <div className="mx-auto flex h-[calc(100dvh-4rem)] max-w-6xl flex-col px-5 py-8 sm:px-8">
-      <SectionHeading title="Upcoming" className="mb-6" />
-      {poster && (
-        <div className="relative min-h-0 w-full flex-1">
-          <Image src={poster.src} alt={poster.alt} fill priority sizes="100vw" className="object-contain" />
-        </div>
-      )}
+    <div className="mx-auto max-w-6xl space-y-16 px-5 py-8 sm:px-8">
+      <SectionHeading title="Upcoming" />
+      {upcoming.map((item, index) => (
+        <section key={item.title} aria-label={item.title} className="mb-16 flex flex-col gap-y-10 sm:mb-24 sm:gap-y-12">
+          {/* Poster and trailer are centered and indented from the headings (up to 64rem wide), so their size never depends on screen height */}
+          <Image
+            src={item.poster.src}
+            alt={item.poster.alt}
+            width={0}
+            height={0}
+            priority={index === 0}
+            sizes="(max-width: 1024px) 100vw, 1024px"
+            className="mx-auto h-auto w-full max-w-5xl"
+          />
+          {/* Sized by screen width only; see .upcoming-box in globals.css */}
+          <div className="upcoming-box-row">
+            <div className="upcoming-box mx-auto my-4.5 space-y-5 py-6 text-center text-pretty sm:my-6 sm:space-y-6 sm:py-8 text-base leading-7 text-cream/90 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
+              {item.description.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </div>
+          <SectionHeading title="Trailer" className="mb-6 sm:mb-4" />
+          <YouTubePlayer youtubeId={item.trailerId} title={`${item.title} trailer`} className="mx-auto w-full max-w-5xl" />
+        </section>
+      ))}
     </div>
   );
 }

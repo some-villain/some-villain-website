@@ -20,6 +20,8 @@ export interface HomeContent {
   intro: string;
   collage: Array<{ src: string; alt: string }>;
   nowPlaying: { youtubeId: string; title: string };
+  /** Shown below Now Playing when a now_playing row is marked coming_soon. */
+  comingSoon?: { youtubeId: string; title: string };
 }
 
 export interface AboutContent {
@@ -101,3 +103,15 @@ export interface Zine {
 
 /** Zines come from the Storage bucket; there is no static fallback. */
 export const zines: Zine[] = [];
+
+export interface UpcomingItem {
+  title: string;
+  poster: { src: string; alt: string };
+  /** Description paragraphs. */
+  description: string[];
+  /** YouTube ID of the trailer. */
+  trailerId: string;
+}
+
+/** Upcoming items come from the "upcoming" table; there is no static fallback. */
+export const upcoming: UpcomingItem[] = [];

@@ -29,7 +29,7 @@ vi.mock('@supabase/supabase-js', () => ({
   }),
 }));
 
-import { getPoster, getZines } from './data';
+import { getHome, getUpcoming, getZines } from './data';
 
 beforeEach(() => {
   process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://abc.supabase.co';
@@ -66,13 +66,40 @@ describe('getZines', () => {
   });
 });
 
-describe('getPoster', () => {
-  it('returns the first image in Poster/', async () => {
-    listings = { Poster: [file('b.jpg'), file('a.png')] };
-    expect((await getPoster())?.src).toContain('/Poster/a.png');
+describe('getUpcoming', () => {
+  const row = { title: 'Telephone', poster: 'Telephone Poster.png', description: 'One.\n\nTwo.', trailer: 'https://youtu.be/SauoRcuJxl4' };
+
+  it('maps rows: poster file in Poster/, description paragraphs, trailer ID', async () => {
+    queryResult = { data: [row], error: null };
+    const [item] = await getUpcoming();
+    expect(item.poster.src).toContain('/Poster/Telephone%20Poster.png');
+    expect(item.description).toEqual(['One.', 'Two.']);
+    expect(item.trailerId).toBe('SauoRcuJxl4');
   });
 
-  it('returns null when the folder is empty', async () => {
-    expect(await getPoster()).toBeNull();
+  it('skips rows whose trailer is not a YouTube link', async () => {
+    queryResult = { data: [{ ...row, trailer: 'not a link' }], error: null };
+    expect(await getUpcoming()).toEqual([]);
+  });
+
+  it('falls back to an empty list when the query fails', async () => {
+    queryResult = { data: null, error: { message: 'boom' } };
+    expect(await getUpcoming()).toEqual([]);
+  });
+});
+
+describe('getHome', () => {
+  const film = (title: string, coming_soon: boolean) => ({ title, video_id: `${title}-id`, coming_soon });
+
+  it('splits now_playing rows into Now Playing and Coming Soon', async () => {
+    queryResult = { data: [film('Soon', true), film('Now', false)], error: null };
+    const home = await getHome();
+    expect(home.nowPlaying).toEqual({ youtubeId: 'Now-id', title: 'Now' });
+    expect(home.comingSoon).toEqual({ youtubeId: 'Soon-id', title: 'Soon' });
+  });
+
+  it('has no Coming Soon film when no row is marked coming soon', async () => {
+    queryResult = { data: [film('Now', false)], error: null };
+    expect((await getHome()).comingSoon).toBeUndefined();
   });
 });

@@ -6,19 +6,23 @@ import {
   about as aboutFallback,
   works as worksFallback,
   zines as zinesFallback,
+  upcoming as upcomingFallback,
   type AboutContent,
   type HomeContent,
   type SiteContent,
+  type UpcomingItem,
   type Work,
   type Zine,
 } from '@/lib/content';
+import { youtubeId } from '@/lib/utils';
 import { IMAGE_BUCKET, WEB_IMAGE, byPage, imageUrl, zineNumber } from '@/lib/images';
 
 /**
  * Server-side content fetchers backed by Supabase (schema in
  * supabase/schema.sql). Text, links and video IDs come from tables; images are
  * read straight from the public "images" Storage bucket by folder (Bio/,
- * Collage/, Poster/, Zines/Zine<N>/).
+ * Collage/, Poster/, Zines/Zine<N>/); the
+ * upcoming table links to files in Poster/ by file name.
  *
  * Responses go through Next's data cache and are revalidated every
  * REVALIDATE_SECONDS, so pages are static and served from the host's edge
@@ -92,12 +96,14 @@ export const getSite = cache(() =>
 
 export const getHome = cache(() =>
   load<HomeContent>('getHome', homeFallback, async (supabase) => {
-    const [settings, featured, collage] = await Promise.all([
+    const [settings, films, collage] = await Promise.all([
       supabase.from('home_settings').select('hero_video_id, intro').eq('id', 1).maybeSingle().then(rows),
-      supabase.from('now_playing').select('title, video_id').eq('id', 1).maybeSingle().then(rows),
+      supabase.from('now_playing').select('title, video_id, coming_soon').order('id').then(rows),
       // Every image in the bucket's Collage/ folder (new uploads appear automatically)
       listImages(supabase, 'Collage'),
     ]);
+    // The first film marked now playing and the first marked coming soon
+    const toFilm = (row?: { title: string; video_id: string }) => row && { youtubeId: row.video_id, title: row.title };
     return (
       settings && {
         heroVideoId: settings.hero_video_id,
@@ -105,9 +111,8 @@ export const getHome = cache(() =>
         collage: collage.length
           ? collage.map((path, index) => ({ src: imageUrl(path), alt: `Some Villain collage, image ${index + 1}` }))
           : homeFallback.collage,
-        nowPlaying: featured
-          ? { youtubeId: featured.video_id, title: featured.title }
-          : homeFallback.nowPlaying,
+        nowPlaying: toFilm(films?.find((film) => !film.coming_soon)) ?? homeFallback.nowPlaying,
+        comingSoon: toFilm(films?.find((film) => film.coming_soon)),
       }
     );
   }),
@@ -160,10 +165,30 @@ export const getZines = cache(() =>
   }),
 );
 
-/** The poster for the Upcoming page: the first image in the bucket's Poster/ folder (null if none). */
-export const getPoster = cache(() =>
-  load<{ src: string; alt: string } | null>('getPoster', null, async (supabase) => {
-    const [poster] = await listImages(supabase, 'Poster');
-    return poster ? { src: imageUrl(poster), alt: 'Upcoming poster' } : null;
+/** Upcoming items: each row's poster is a file name in the bucket's Poster/ folder; the trailer is a YouTube link. */
+export const getUpcoming = cache(() =>
+  load<UpcomingItem[]>('getUpcoming', upcomingFallback, async (supabase) => {
+    const items = await supabase
+      .from('upcoming')
+      .select('title, poster, description, trailer')
+      .order('sort_order')
+      .then(rows);
+    const available = (items ?? []).flatMap((row) => {
+      const trailerId = youtubeId(row.trailer);
+      return trailerId
+        ? [
+            {
+              title: row.title,
+              poster: { src: imageUrl(`Poster/${row.poster}`), alt: `${row.title} poster` },
+              description: String(row.description)
+                .split(/\n\s*\n/)
+                .map((paragraph) => paragraph.trim())
+                .filter(Boolean),
+              trailerId,
+            },
+          ]
+        : [];
+    });
+    return available.length ? available : null;
   }),
 );
