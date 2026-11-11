@@ -63,7 +63,10 @@ create table if not exists now_playing (
   title text not null,
   provider text not null default 'youtube' check (provider in ('youtube', 'vimeo')),
   video_id text not null,
-  coming_soon boolean not null default false
+  coming_soon boolean not null default false,
+  category text,
+  year integer,
+  description text
 );
 
 -- Upcoming page items, shown in sort_order (the title is not displayed on the page)
@@ -120,9 +123,9 @@ As a freelance filmmaker, I bring years of storytelling experience to every proj
 
 If you’re looking for a filmmaker who values creativity and collaboration, let’s create something together.');
 
-insert into now_playing (title, provider, video_id, coming_soon) values
-  ('Stardate: Unknown | Sci-Fi Comedy Short Film', 'youtube', 'eVkBWjiSydU', false),
-  ('TELEPHONE | HORROR-THRILLER SHORT FILM', 'youtube', 'SauoRcuJxl4', true);
+insert into now_playing (title, provider, video_id, coming_soon, category, year, description) values
+  ('Stardate: Unknown | Sci-Fi Comedy Short Film', 'youtube', 'eVkBWjiSydU', false, null, null, null),
+  ('TELEPHONE | HORROR-THRILLER SHORT FILM', 'youtube', 'SauoRcuJxl4', true, 'Short Film', 2027, null);
 
 insert into works (title, provider, video_id, sort_order) values
   ('QUEST BROS ep. 2 - The Feast of Fables', 'youtube', 'bj_3e3fa3jM', 1),
