@@ -16,7 +16,7 @@ export default async function UpcomingPage() {
     <div className="mx-auto max-w-6xl space-y-16 px-5 py-8 sm:px-8">
       <SectionHeading title="Upcoming" />
       {upcoming.map((item, index) => (
-        <section key={item.title} aria-label={item.title} className="space-y-8">
+        <section key={item.title} aria-label={item.title} className="space-y-10 sm:space-y-12">
           {/* Natural aspect ratio, capped to the viewport height so the poster never overflows the screen */}
           <Image
             src={item.poster.src}
@@ -27,12 +27,15 @@ export default async function UpcomingPage() {
             sizes="100vw"
             className="mx-auto h-auto max-h-[80dvh] w-auto max-w-full"
           />
-          <div className="mx-auto max-w-3xl space-y-4 text-base leading-relaxed text-cream/90 sm:text-lg">
+          <div className="mx-auto max-w-2xl space-y-5 text-pretty text-base leading-7 text-cream/90 sm:space-y-6 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
             {item.description.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
-          <YouTubePlayer youtubeId={item.trailerId} title={`${item.title} trailer`} />
+          <div className="space-y-5">
+            <SectionHeading title="Trailer" titleClassName="text-xl sm:text-2xl" />
+            <YouTubePlayer youtubeId={item.trailerId} title={`${item.title} trailer`} />
+          </div>
         </section>
       ))}
     </div>
