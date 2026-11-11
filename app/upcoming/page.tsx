@@ -16,8 +16,12 @@ export default async function UpcomingPage() {
     <div className="mx-auto max-w-6xl space-y-16 px-5 py-8 sm:px-8">
       <SectionHeading title="Upcoming" />
       {upcoming.map((item, index) => (
-        <section key={item.title} aria-label={item.title} className="mx-auto w-fit max-w-full space-y-10 sm:space-y-12">
-          {/* Poster: natural aspect ratio, capped to the viewport height. The section is only as wide as the poster; the text and trailer (w-0 min-w-full) fill that width without widening it */}
+        <section
+          key={item.title}
+          aria-label={item.title}
+          className="grid grid-cols-[1fr_minmax(0,auto)_1fr] gap-y-10 sm:gap-y-12"
+        >
+          {/* The middle column is as wide as the poster; the other items (w-0 min-w-full) fill their column without widening it */}
           <Image
             src={item.poster.src}
             alt={item.poster.alt}
@@ -25,17 +29,20 @@ export default async function UpcomingPage() {
             height={0}
             priority={index === 0}
             sizes="100vw"
-            className="mx-auto h-auto max-h-[80dvh] w-auto max-w-full"
+            className="col-start-2 mx-auto h-auto max-h-[80dvh] w-auto max-w-full"
           />
-          <div className="w-0 min-w-full space-y-5 text-pretty text-base leading-7 text-cream/90 sm:space-y-6 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
+          <div className="col-start-2 w-0 min-w-full space-y-5 text-pretty text-base leading-7 text-cream/90 sm:space-y-6 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
             {item.description.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
-          <div className="w-0 min-w-full space-y-16">
-            <SectionHeading title="Trailer" />
-            <YouTubePlayer youtubeId={item.trailerId} title={`${item.title} trailer`} />
-          </div>
+          {/* Spans the full width so it lines up with the Upcoming heading; its gap to the video matches that heading's (4rem) */}
+          <SectionHeading title="Trailer" className="col-span-full mb-6 w-0 min-w-full sm:mb-4" />
+          <YouTubePlayer
+            youtubeId={item.trailerId}
+            title={`${item.title} trailer`}
+            className="col-start-2 w-0 min-w-full"
+          />
         </section>
       ))}
     </div>
