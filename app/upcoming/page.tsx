@@ -31,7 +31,7 @@ export default async function UpcomingPage() {
             sizes="100vw"
             className="col-start-2 mx-auto h-auto max-h-[80dvh] w-auto max-w-full"
           />
-          <div className="col-start-2 w-0 min-w-full space-y-5 text-pretty text-base leading-7 text-cream/90 sm:space-y-6 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
+          <div className="col-start-2 my-3 w-0 min-w-full space-y-5 rounded-xl border border-line bg-black p-6 text-pretty sm:my-4 sm:p-8 text-base leading-7 text-cream/90 sm:space-y-6 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
             {item.description.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
