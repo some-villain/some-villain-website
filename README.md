@@ -9,7 +9,7 @@ Next.js (App Router), TypeScript, and Tailwind CSS v4.
 - **About** (`/about`) — portrait and bio
 - **Films** (`/films`) — gallery of short films with click-to-play YouTube embeds
 - **Zines** (`/zines`) — print publications
-- **Upcoming** (`/upcoming`) — poster and description side by side, with the trailer below (from the `upcoming` table)
+- **Upcoming** (`/upcoming`) — poster, description and trailer stacked (from the `upcoming` table)
 
 ## Getting started
 
