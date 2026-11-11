@@ -16,7 +16,7 @@ export default async function UpcomingPage() {
     <div className="mx-auto max-w-6xl space-y-16 px-5 py-8 sm:px-8">
       <SectionHeading title="Upcoming" />
       {upcoming.map((item, index) => (
-        <section key={item.title} aria-label={item.title} className="flex flex-col gap-y-10 sm:gap-y-12">
+        <section key={item.title} aria-label={item.title} className="mb-16 flex flex-col gap-y-10 sm:mb-24 sm:gap-y-12">
           {/* Poster and trailer are centered and indented from the headings (up to 64rem wide), so their size never depends on screen height */}
           <Image
             src={item.poster.src}
