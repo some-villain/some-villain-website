@@ -32,8 +32,8 @@ export default async function UpcomingPage() {
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
-          <div className="space-y-5">
-            <SectionHeading title="Trailer" titleClassName="text-xl sm:text-2xl" />
+          <div className="space-y-16">
+            <SectionHeading title="Trailer" />
             <YouTubePlayer youtubeId={item.trailerId} title={`${item.title} trailer`} />
           </div>
         </section>
