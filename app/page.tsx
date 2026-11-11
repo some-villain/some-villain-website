@@ -36,7 +36,10 @@ export default async function HomePage() {
           </p>
         </section>
 
-        <NowPlaying film={home.nowPlaying} />
+        <div className="space-y-24">
+          <NowPlaying film={home.nowPlaying} />
+          {home.comingSoon && <NowPlaying film={home.comingSoon} eyebrow="Coming Soon" />}
+        </div>
       </div>
     </>
   );
