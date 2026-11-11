@@ -56,12 +56,14 @@ create table if not exists works (
   sort_order integer not null default 0
 );
 
--- Home page "Now Playing" feature (single row, separate from the films gallery)
+-- Home page features below the hero, separate from the films gallery: the first row with
+-- coming_soon = false is "Now Playing" and the first with coming_soon = true is "Coming Soon"
 create table if not exists now_playing (
-  id integer primary key default 1 check (id = 1),
+  id integer generated always as identity primary key,
   title text not null,
   provider text not null default 'youtube' check (provider in ('youtube', 'vimeo')),
-  video_id text not null
+  video_id text not null,
+  coming_soon boolean not null default false
 );
 
 -- Upcoming page items, shown in sort_order (the title is not displayed on the page)
@@ -118,8 +120,9 @@ As a freelance filmmaker, I bring years of storytelling experience to every proj
 
 If you’re looking for a filmmaker who values creativity and collaboration, let’s create something together.');
 
-insert into now_playing (id, title, provider, video_id) values
-  (1, 'Stardate: Unknown | Sci-Fi Comedy Short Film', 'youtube', 'eVkBWjiSydU');
+insert into now_playing (title, provider, video_id, coming_soon) values
+  ('Stardate: Unknown | Sci-Fi Comedy Short Film', 'youtube', 'eVkBWjiSydU', false),
+  ('TELEPHONE | HORROR-THRILLER SHORT FILM', 'youtube', 'SauoRcuJxl4', true);
 
 insert into works (title, provider, video_id, sort_order) values
   ('QUEST BROS ep. 2 - The Feast of Fables', 'youtube', 'bj_3e3fa3jM', 1),
