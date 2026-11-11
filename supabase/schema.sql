@@ -2,10 +2,11 @@
 --
 --   Text and links  -> tables (site_settings, social_links, home_settings, about_settings)
 --   Videos          -> works and now_playing (provider + video_id, e.g. YouTube)
+--   Upcoming        -> upcoming (poster file name in Poster/, description, YouTube trailer link)
 --   Images          -> files in the public Storage bucket "images", read by folder:
 --                        Bio/             first file is the About portrait
 --                        Collage/         every image rotates through the home collage
---                        Poster/          first file is the Upcoming page poster
+--                        Poster/          posters; each upcoming row names its file
 --                        Zines/Zine<N>/   "<page> <name>.<ext>"; page 1 is the cover (title "Vol. N")
 --                      Only png, jpg, jpeg and webp are used. The site lists the folders
 --                      through the Storage API.
@@ -63,6 +64,16 @@ create table if not exists now_playing (
   video_id text not null
 );
 
+-- Upcoming page items, shown in sort_order (the title is not displayed on the page)
+create table if not exists upcoming (
+  id bigint generated always as identity primary key,
+  title text not null,
+  poster text not null, -- file name in the bucket's Poster/ folder, e.g. 'Telephone.png'
+  description text not null, -- separate paragraphs with a blank line
+  trailer text not null, -- YouTube link, e.g. https://youtu.be/<ID>
+  sort_order integer not null default 0
+);
+
 create unique index if not exists works_provider_video_key on works (provider, video_id);
 
 -- ---------------------------------------------------------------------------
@@ -74,6 +85,7 @@ alter table home_settings enable row level security;
 alter table about_settings enable row level security;
 alter table works enable row level security;
 alter table now_playing enable row level security;
+alter table upcoming enable row level security;
 
 create policy "Public read site_settings" on site_settings for select using (true);
 create policy "Public read social_links" on social_links for select using (true);
@@ -81,6 +93,7 @@ create policy "Public read home_settings" on home_settings for select using (tru
 create policy "Public read about_settings" on about_settings for select using (true);
 create policy "Public read works" on works for select using (true);
 create policy "Public read now_playing" on now_playing for select using (true);
+create policy "Public read upcoming" on upcoming for select using (true);
 
 -- Lets the site list the bucket's folders (downloads of public files never need this)
 create policy "Public list images" on storage.objects for select to anon, authenticated using (bucket_id = 'images');
@@ -118,3 +131,18 @@ insert into works (title, provider, video_id, sort_order) values
   ('Gourd of Darkness', 'youtube', 'pyM9V-7SF8c', 7),
   ('QUEST BROS ep. 1 The Ghost', 'youtube', 'V-13XrX4qAY', 8),
   ('Quest Bros', 'youtube', 'EWZaL3-usDE', 9);
+
+-- Linked to the first image in Poster/ (no row is added if the folder is empty)
+insert into upcoming (title, poster, description, trailer, sort_order)
+select
+  'Telephone',
+  substring(name from 8),
+  'Halloween movie night becomes a battle for survival as one dark secret after another is revealed through the telephone.
+
+Telephone is a horror-thriller about the consequences of trusting our screens more than the people in the room.',
+  'https://youtu.be/SauoRcuJxl4',
+  1
+from storage.objects
+where bucket_id = 'images' and name ~* '^Poster/[^/]+\.(png|jpe?g|webp)$'
+order by name
+limit 1;
