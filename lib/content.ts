@@ -101,3 +101,15 @@ export interface Zine {
 
 /** Zines come from the Storage bucket; there is no static fallback. */
 export const zines: Zine[] = [];
+
+export interface UpcomingItem {
+  title: string;
+  poster: { src: string; alt: string };
+  /** Description paragraphs. */
+  description: string[];
+  /** YouTube ID of the trailer. */
+  trailerId: string;
+}
+
+/** Upcoming items come from the "upcoming" table; there is no static fallback. */
+export const upcoming: UpcomingItem[] = [];
