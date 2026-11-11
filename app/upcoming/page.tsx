@@ -27,11 +27,13 @@ export default async function UpcomingPage() {
             sizes="(max-width: 1024px) 100vw, 1024px"
             className="mx-auto h-auto w-full max-w-5xl"
           />
-          {/* The box fades to transparent over twice its side padding. It is sized by screen width only: its outside side margins are a quarter of what a 45vw box would leave */}
-          <div className="mx-auto my-4.5 w-[calc((3*min(100%,64rem)+clamp(18rem,45vw,40rem))/4)] max-w-full space-y-5 bg-[linear-gradient(to_right,transparent,black_6rem,black_calc(100%-6rem),transparent)] px-12 py-6 text-center text-pretty sm:my-6 sm:space-y-6 sm:bg-[linear-gradient(to_right,transparent,black_9rem,black_calc(100%-9rem),transparent)] sm:px-18 sm:py-8 text-base leading-7 text-cream/90 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
-            {item.description.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+          {/* Sized by screen width only; see .upcoming-box in globals.css */}
+          <div className="upcoming-box-row">
+            <div className="upcoming-box mx-auto my-4.5 space-y-5 py-6 text-center text-pretty sm:my-6 sm:space-y-6 sm:py-8 text-base leading-7 text-cream/90 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
+              {item.description.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
           </div>
           <SectionHeading title="Trailer" className="mb-6 sm:mb-4" />
           <YouTubePlayer youtubeId={item.trailerId} title={`${item.title} trailer`} className="mx-auto w-full max-w-5xl" />
