@@ -20,6 +20,8 @@ export interface HomeContent {
   intro: string;
   collage: Array<{ src: string; alt: string }>;
   nowPlaying: { youtubeId: string; title: string };
+  /** Shown below Now Playing when a now_playing row is marked coming_soon. */
+  comingSoon?: { youtubeId: string; title: string };
 }
 
 export interface AboutContent {

@@ -96,12 +96,14 @@ export const getSite = cache(() =>
 
 export const getHome = cache(() =>
   load<HomeContent>('getHome', homeFallback, async (supabase) => {
-    const [settings, featured, collage] = await Promise.all([
+    const [settings, films, collage] = await Promise.all([
       supabase.from('home_settings').select('hero_video_id, intro').eq('id', 1).maybeSingle().then(rows),
-      supabase.from('now_playing').select('title, video_id').eq('id', 1).maybeSingle().then(rows),
+      supabase.from('now_playing').select('title, video_id, coming_soon').order('id').then(rows),
       // Every image in the bucket's Collage/ folder (new uploads appear automatically)
       listImages(supabase, 'Collage'),
     ]);
+    // The first film marked now playing and the first marked coming soon
+    const toFilm = (row?: { title: string; video_id: string }) => row && { youtubeId: row.video_id, title: row.title };
     return (
       settings && {
         heroVideoId: settings.hero_video_id,
@@ -109,9 +111,8 @@ export const getHome = cache(() =>
         collage: collage.length
           ? collage.map((path, index) => ({ src: imageUrl(path), alt: `Some Villain collage, image ${index + 1}` }))
           : homeFallback.collage,
-        nowPlaying: featured
-          ? { youtubeId: featured.video_id, title: featured.title }
-          : homeFallback.nowPlaying,
+        nowPlaying: toFilm(films?.find((film) => !film.coming_soon)) ?? homeFallback.nowPlaying,
+        comingSoon: toFilm(films?.find((film) => film.coming_soon)),
       }
     );
   }),
