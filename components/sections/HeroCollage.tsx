@@ -97,7 +97,6 @@ const CollageTile = ({
           )}
         />
       ))}
-      <span className="absolute inset-0 bg-ink/20 transition-colors duration-300 group-hover:bg-ink/0" />
     </button>
   );
 };

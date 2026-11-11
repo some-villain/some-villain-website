@@ -52,7 +52,6 @@ const YouTubePlayer = ({
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <span className="absolute inset-0 bg-ink/30 transition-colors group-hover:bg-ink/10" />
           <span
             aria-hidden
             className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-cream/40 bg-ink/60 backdrop-blur-sm transition-all duration-300 group-hover:border-accent group-hover:bg-ink/80"
