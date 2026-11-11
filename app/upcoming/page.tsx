@@ -19,19 +19,19 @@ export default async function UpcomingPage() {
         <section
           key={item.title}
           aria-label={item.title}
-          className="grid grid-cols-[1fr_minmax(0,auto)_1fr] gap-y-10 sm:gap-y-12"
+          className="grid grid-cols-[1fr_min(100%,40rem)_1fr] gap-y-10 sm:gap-y-12"
         >
-          {/* The middle column is as wide as the poster; the other items (w-0 min-w-full) fill their column without widening it */}
+          {/* The middle column is the screen width up to 40rem; the poster and trailer fill it, so their size never depends on screen height */}
           <Image
             src={item.poster.src}
             alt={item.poster.alt}
             width={0}
             height={0}
             priority={index === 0}
-            sizes="100vw"
-            className="col-start-2 mx-auto h-auto max-h-[80dvh] w-auto max-w-full"
+            sizes="(max-width: 640px) 100vw, 640px"
+            className="col-start-2 h-auto w-full"
           />
-          {/* Zero-width, full-row wrapper: the box inside is sized by screen width and does not affect the poster/trailer column */}
+          {/* Zero-width, full-row wrapper: the box inside is sized by screen width and does not affect the poster and trailer column */}
           <div className="col-span-full w-0 min-w-full">
             <div className="mx-auto my-4.5 w-[clamp(18rem,45vw,40rem)] max-w-full space-y-5 bg-black px-12 py-6 text-center text-pretty sm:my-6 sm:space-y-6 sm:px-18 sm:py-8 text-base leading-7 text-cream/90 sm:text-lg sm:leading-8 lg:text-xl lg:leading-9">
               {item.description.map((paragraph) => (
